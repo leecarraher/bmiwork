@@ -1,0 +1,84 @@
+	
+Data hosted with ♥ by Pastebin.com - Download Raw - See Original
+
+    1) Install Ubuntu 12.04.3 64-bit
+     
+    2) Update
+            open terminal:
+            sudo apt-get update && sudo apt-get upgrade
+            sudo shutdown -r now # reboot machine
+     
+    3) install compilation tools, mpi, nvidia-331 driver, gcc/g++ 4.6
+       (supported, as opposed to gcc/g++ 4.8 or 4.7.3) and set as default.
+       Also, install other libraries needed for CUDA Toolkit Samples compilation and make the
+       respective symbolic links to where the CUDA Toolkit installer will find them:
+     
+            sudo add-apt-repository ppa:xorg-edgers/ppa # adds repository that has latest NVIDIA drivers for 12.04.3
+            sudo apt-get update # updates package lists
+            sudo apt-get install build-essential libcr-dev mpich2 mpich2-doc gcc-4.6 g++-4.6 nvidia-331 # build tools, compilers, gcc, nvidia
+            sudo apt-get install libX11-dev libglu1-mesa libXi-dev libXmu-dev freeglut3-dev # libraries needed for compiling CUDA samples
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.6
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 40 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
+            sudo ln -s /usr/lib/x86_64-linux-gnu/libXi.so /usr/lib/libXi.so
+            sudo ln -s /usr/lib/x86_64-linux-gnu/libGLU.so /usr/lib/libGLU.so
+            sudo ln -s /usr/lib/x86_64-linux-gnu/libX11.so /usr/lib/libX11.so
+            sudo ln -s /usr/lib/x86_64-linux-gnu/libXmu.so /usr/lib/libXmu.so
+            sudo ln -s /usr/lib/x86_64-linux-gnu/libglut.so /usr/lib/libglut.so
+            sudo shutdown -r now # reboot machine
+     
+    4) download & install CUDA 5.5 Toolkit 64-bit for Ubuntu 12.10 (RUN):
+            download here: https://developer.nvidia.com/cuda-downloads
+     
+            install -- open terminal in directory where downloaded:
+     
+            chmod +x cuda_5.5.22_linux_64.run # This marks archive as an executable, archive name might be different
+            sudo ./cuda_5.5.22_linux_64.run
+           
+            # step through license agreement, then type: accept
+            Confirm you are installing on unsupported configuration -- type: y
+            Installer will ask to install NVIDIA driver -- type: n
+            Installer will ask to install the CUDA 5.5 Toolkit -- type: y
+            Installer will ask toolkit location -- default is okay, hit Enter key to select default
+            Installer will ask to install CUDA 5.5 Samples -- type: y
+            Installer will ask samples location -- this can be changed, or left to default, I chose /opt/cuda_samples and later chown'ed that directory so that all could read/write to it
+     
+            Installer should complete, saying:
+     
+            ===========
+            = Summary =
+            ===========
+     
+            Driver:   Not Selected
+            Toolkit:  Installed in /usr/local/cuda-5.5
+            Samples:  Installed in /opt/cuda_samples
+     
+            Next:
+     
+            gedit ~/.bashrc &
+     
+            and place the following lines in the file:
+     
+            export PATH=/usr/local/cuda/bin:$PATH
+            export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/lib:/usr/lib/nvidia-331:$LD_LIBRARY_PATH
+     
+            Also add a variable in .bashrc called CUDA_SAMPLES pointing to the directory where the CUDA samples were installed from above... i.e.:
+     
+            export CUDA_SAMPLES=/home/username/NVIDIA_CUDA-5.5_Samples
+     
+            Lastly, to compile all the CUDA Toolkit sources:
+     
+            # needed to compile samples that depend on GL
+            cp /usr/local/cuda-5.5/extras/CUPTI/include/GL/glu.h ${CUDA_SAMPLES}/common/inc/GL/
+            cp /usr/local/cuda-5.5/extras/CUPTI/include/GL/gl.h ${CUDA_SAMPLES}/common/inc/GL/
+     
+            One other thing, need to make a link to /usr/lib/nvidia-current to the driver files installed
+            by the nvidia-331 driver, as this is the location where CUDA looks for libraries in Ubuntu. Do this via:
+     
+            sudo ln -s /usr/lib/nvidia-331 /usr/lib/nvidia-current
+     
+            Finally, from a terminal in the directory that was chosen to install the samples type: make
+            All the samples should compile successfully.
+     
+            For platforms with Optimus (laptops) refer to: http://docs.nvidia.com/cuda/cuda-getting-started-guide-for-linux/index.html or look at http://bumblebee-project.org/
+
+
